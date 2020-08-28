@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop/models/product.dart';
+import 'package:shop/providers/cart.dart';
+import 'package:shop/providers/product.dart';
 
 class ProductWidget extends StatelessWidget {
   @override
@@ -16,6 +17,11 @@ class ProductWidget extends StatelessWidget {
       // quando os atributos a serem
       // exibidos não irão ser alterados, ou seja
       // atributos finais
+      listen: false,
+    );
+
+    final Cart cart = Provider.of<Cart>(
+      context,
       listen: false,
     );
 
@@ -43,7 +49,7 @@ class ProductWidget extends StatelessWidget {
         ),
         footer: GridTileBar(
           backgroundColor: Colors.black87,
-          // o unico ponto onde são ouvidas mudanças 
+          // o unico ponto onde são ouvidas mudanças
           // é a parte do isFavorite
           // para isto, basta-se utilizar o Widget Consumer
           leading: Consumer<Product>(
@@ -66,7 +72,10 @@ class ProductWidget extends StatelessWidget {
           trailing: IconButton(
             icon: Icon(Icons.shopping_cart),
             color: Theme.of(context).accentColor,
-            onPressed: () {},
+            onPressed: () {
+              cart.addItem(product);
+              print(cart.itemCount);
+            },
           ),
         ),
       ),
