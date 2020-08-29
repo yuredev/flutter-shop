@@ -7,9 +7,6 @@ import 'package:shop/widgets/cart_item_widget.dart';
 class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    Cart cartProvider = Provider.of<Cart>(context, listen: false);
-    List<CartItem> cartItemsList = cartProvider.items.values.toList();
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Carrinho'),
@@ -33,7 +30,7 @@ class CartScreen extends StatelessWidget {
                   Consumer<Cart>(
                     builder: (ctx, cart, child) => Chip(
                       label: Text(
-                        'R\$ ${cartProvider.totalAmount.toStringAsFixed(2)}',
+                        'R\$ ${cart.totalAmount.toStringAsFixed(2)}',
                         style: TextStyle(
                           color: Theme.of(context)
                               .primaryTextTheme
@@ -46,16 +43,19 @@ class CartScreen extends StatelessWidget {
                   ),
                   // ocupa resto do espaço
                   Spacer(),
-                  FlatButton(
-                    child: Text('COMPRAR'),
-                    textColor: Theme.of(context).primaryColor,
-                    onPressed: () {
-                      Orders ordersProvider =
-                          Provider.of<Orders>(context, listen: false);
-                      ordersProvider.addOrder(cartItemsList);
-                      cartProvider.clear();
-                    },
-                  )
+                  Consumer<Cart>(builder: (ctx, cart, child) {
+                    List<CartItem> cartItemsList = cart.items.values.toList();
+                    return FlatButton(
+                      child: Text('COMPRAR'),
+                      textColor: Theme.of(context).primaryColor,
+                      onPressed: () {
+                        Orders ordersProvider =
+                            Provider.of<Orders>(context, listen: false);
+                        ordersProvider.addOrder(cartItemsList);
+                        cart.clear();
+                      },
+                    );
+                  })
                 ],
               ),
             ),

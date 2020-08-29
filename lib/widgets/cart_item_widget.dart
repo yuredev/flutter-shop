@@ -28,8 +28,8 @@ class CartItemWidget extends StatelessWidget {
             colors: [
               Colors.white,
               Theme.of(context).errorColor,
-            ]
-          )
+            ],
+          ),
         ),
         alignment: Alignment.centerRight,
         padding: EdgeInsets.only(
@@ -50,7 +50,8 @@ class CartItemWidget extends StatelessWidget {
           child: ListTile(
             title: Text(cartItem.title),
             subtitle: Text(
-                'Total: R\$ ${(cartItem.price * cartItem.quantity).toStringAsFixed(2)}'),
+              'Total: R\$ ${(cartItem.price * cartItem.quantity).toStringAsFixed(2)}',
+            ),
             trailing: Text('${cartItem.quantity}x'),
             leading: CircleAvatar(
               child: Padding(

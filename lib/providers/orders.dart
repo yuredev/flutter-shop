@@ -18,17 +18,21 @@ class Order {
 }
 
 class Orders with ChangeNotifier {
-  List<Order> _orders = [];
+  List<Order> _items = [];
 
-  List<Order> get orders {
-    return [ ..._orders ];
+  List<Order> get items {
+    return [ ..._items ];
+  }
+
+  int get itemsCount {
+    return _items.length;
   }
 
   void addOrder(List<CartItem> products) {
     final total = products.fold(0, (acc, cur) { 
       return acc + cur.price * cur.quantity;
     }); 
-    _orders.insert(0, Order(
+    _items.insert(0, Order(
       id: Random().nextDouble().toString(),
       total: total,
       date: DateTime.now(),
