@@ -2,29 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:shop/providers/product.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
- @override
+  @override
   Widget build(BuildContext context) {
     final Product product = ModalRoute.of(context).settings.arguments;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(product.title),
-      ),
-      // body: Column(
-      //   children: [
-      //     Text(CounterProvider.of(context).state.value.toString()),
-      //     RaisedButton(
-      //       child: Text('+'),
-      //       onPressed: () {
-      //         setState(() {
-      //           // sem o método of há como acessar os dados do provider 
-      //           // context.dependOnInheritedWidgetOfExactType<CounterProvider>().state.inc();
-      //           // no entanto, é bem mais fácil usar quando se tem o método: of() 
-      //           CounterProvider.of(context).state.inc();
-      //         });
-      //       },
-      //     ),
-      //   ],
-      // ),
-    );
+        appBar: AppBar(
+          title: Text(product.title),
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                height: 300,
+                width: double.infinity,
+                child: Image.network(
+                  product.imageUrl,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'R\$ ${product.price}',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 20,
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 10,
+                ),
+                width: double.infinity,
+                child: Text(product.description, 
+                textAlign: TextAlign.center),
+              )
+            ],
+          ),
+        ));
   }
 }
