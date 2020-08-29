@@ -9,7 +9,7 @@ class CartItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // componente arrastavel, tipo as fotos do Tinder
+    // componente deslizavel pros lados 
     return Dismissible(
       key: ValueKey(cartItem.id),
       direction: DismissDirection.endToStart,
