@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shop/providers/cart.dart';
 import 'package:shop/providers/product.dart';
 
-class ProductWidget extends StatelessWidget {
+class ProductGridItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Product product = Provider.of<Product>(
@@ -73,8 +73,37 @@ class ProductWidget extends StatelessWidget {
             icon: Icon(Icons.shopping_cart),
             color: Theme.of(context).accentColor,
             onPressed: () {
+              // Scaffold.of subirá a hierarquia de widgets
+              // até achar o Scaffold
+              // quando achar é possível usar métodos desse Scaffold
+              // como por exemplo abrir o Drawer se tiver
+
+              // Scaffold.of(context).openDrawer();
+
+              // abrindo Snack bar
+              // Scaffold.of(context).showSnackBar(SnackBar(
+
+              // esconder SnackBar atual para não criar muitas
+              // SnackBars aparecendo uma após a outra se o usuário
+              // pressionar muitas vezes
+              Scaffold.of(context).hideCurrentSnackBar();
+
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text(
+                  'Produto adicionado ao carrinho!',
+                  // textAlign: TextAlign.center,
+                ),
+                duration: Duration(
+                  seconds: 2,
+                ),
+                action: SnackBarAction(
+                  label: 'DESFAZER',
+                  onPressed: () {
+                    cart.removeSingleItem(product.id);
+                  },
+                ),
+              ));
               cart.addItem(product);
-              print(cart.itemCount);
             },
           ),
         ),

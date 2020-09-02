@@ -9,10 +9,42 @@ class CartItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // componente deslizavel pros lados 
+    // componente deslizavel pros lados
     return Dismissible(
       key: ValueKey(cartItem.id),
       direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) {
+        return showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Tem certeza?'),
+            content: Text('Quer remover o item do carrino?'),
+            actions: [
+              FlatButton(
+                child: Text('Não'),
+                onPressed: () {
+                  // o showDialog retorna uma Future 
+
+                  // essa Future só é resolvida na chamada do método 
+                  // Navigator.of().pop
+                  // o confirmDismiss espera uma função Future que ao 
+                  // resolvida retorna um boolean 
+                  // dessa forma podemos passar o valor para o pop 
+                  // assim o showDialog retorna uma Furure<bool>
+                  // compatível com o atriuto confirmDismiss
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              FlatButton(
+                child: Text('Sim'),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              )
+            ],
+          ),
+        );
+      },
       onDismissed: (direction) {
         Provider.of<Cart>(context, listen: false)
             .removeItem(cartItem.productId);

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop/providers/products.dart';
-import 'package:shop/widgets/product_widget.dart';
+import 'package:shop/widgets/product_grid_item.dart';
 
 class ProductGrid extends StatelessWidget {
   final bool showFavoriteOnly;
@@ -31,7 +31,7 @@ class ProductGrid extends StatelessWidget {
       // pode ocorrer erros na hora de deletar os produtos por exemplo
       itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
         value: products[i],
-        child: ProductWidget(),
+        child: ProductGridItem(),
       ),
     );
   }
