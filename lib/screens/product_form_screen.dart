@@ -25,8 +25,23 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _imageUrlFocusNode.addListener(_updateImage);
   }
 
+  bool _imageUrlIsValid(String url) {
+    bool startWithHttp = url.toLowerCase().startsWith('http://');
+    bool startWithHttps = url.toLowerCase().startsWith('https://');
+    bool protocolIsValid = startWithHttp || startWithHttps;
+
+    bool endsWithPng = url.toLowerCase().endsWith('.png');
+    bool endsWithJpg = url.toLowerCase().endsWith('.jpg');
+    bool endsWithJpeg = url.toLowerCase().endsWith('.jpeg');
+    bool imageExtensionIsValid = endsWithPng || endsWithJpg || endsWithJpeg;
+
+    return protocolIsValid && imageExtensionIsValid;
+  }
+
   void _updateImage() {
-    setState(() {});
+    if (_imageUrlIsValid(_imageUrlController.text)) {
+      setState(() {});
+    }
   }
 
   @override
@@ -52,6 +67,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         id: Random().nextDouble().toString(),
       );
       Provider.of<Products>(context, listen: false).addProduct(newProduct);
+      Navigator.of(context).pop();
     }
   }
 
@@ -63,7 +79,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.save),
-            onPressed: () => _saveForm(),
+            onPressed: () {
+              _saveForm();
+            },
           )
         ],
       ),
@@ -85,18 +103,18 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   FocusScope.of(context).requestFocus(_priceFocusNode);
                 },
                 onSaved: (value) => _formData['title'] = value,
-                // qualquer coisa que o validator retorne que 
+                // qualquer coisa que o validator retorne que
                 // seja diferente de null
                 // será interpretada como erro na validação
                 // fazendo com que o currentState.validate()
                 // retorne falso
 
-                // os retornos dos validators são justamente o 
+                // os retornos dos validators são justamente o
                 // texto da mensagem de erro que aparecerá no campo
                 validator: (title) {
-                  // trim(): tira espaços em branco 
+                  // trim(): tira espaços em branco
                   if (title.trim().isEmpty) {
-                    return 'O Título não pode ser vazio';
+                    return 'O campo de título não pode estar vazio';
                   } else if (title.trim().length < 3) {
                     return 'O Título deve conter no mínimo 3 caracteres';
                   }
@@ -121,10 +139,10 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 onSaved: (value) => _formData['price'] = double.parse(value),
                 validator: (price) {
                   if (price.trim().isEmpty) {
-                    return 'O preço não pode ser vazio';
-                  } else if (double.parse(price.trim()) == 0) {
+                    return 'O campo de preço não pode estar vazio';
+                  } else if (double.tryParse(price.trim()) <= 0) {
                     return 'O produto não pode ser gratuito';
-                  } 
+                  }
                   return null;
                 },
               ),
@@ -153,10 +171,17 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                       textInputAction: TextInputAction.done,
                       focusNode: _imageUrlFocusNode,
                       controller: _imageUrlController,
-                      onFieldSubmitted: (_) {
-                        _saveForm();
-                      },
+                      onFieldSubmitted: (_) => _saveForm(),
                       onSaved: (value) => _formData['image-url'] = value,
+                      validator: (url) {
+                        bool isNotEmpty = url.trim().isNotEmpty;
+                        bool isValid = _imageUrlIsValid(url);
+
+                        if (isNotEmpty && isValid) {
+                          return null;
+                        }
+                        return 'Informe uma URL valida';
+                      },
                     ),
                   ),
                   Container(
