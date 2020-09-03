@@ -15,7 +15,9 @@ class ProductManagerScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).pushNamed('/product-form');
+            },
           )
         ],
       ),
