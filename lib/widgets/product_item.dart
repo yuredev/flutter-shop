@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shop/providers/product.dart';
+import 'package:shop/providers/products.dart';
 
 class ProductItem extends StatelessWidget {
   final Product product;
@@ -20,12 +22,39 @@ class ProductItem extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.edit),
               color: Theme.of(context).primaryColor,
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).pushNamed(
+                  '/product-form',
+                  arguments: product,
+                );
+              },
             ),
             IconButton(
               icon: Icon(Icons.delete),
               color: Theme.of(context).errorColor,
-              onPressed: () {},
+              onPressed: () async {
+                bool productMustBeDeleted = await showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Excluir Produto'),
+                    content: Text('Tem certeza?'),
+                    actions: [
+                      FlatButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text('Não'),
+                      ),
+                      FlatButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: Text('Sim'),
+                      ),
+                    ],
+                  ),
+                ) as bool;
+                if (productMustBeDeleted) {
+                  Provider.of<Products>(context, listen: false)
+                      .removeProduct(product.id);
+                }
+              },
             )
           ],
         ),

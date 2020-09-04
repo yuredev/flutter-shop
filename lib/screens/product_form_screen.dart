@@ -25,6 +25,27 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _imageUrlFocusNode.addListener(_updateImage);
   }
 
+  // é chamado
+  // quando renderiza a arvore de widgets novamente
+  // ou seja, quando há mudança nas dependencias
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_formData.isEmpty) {
+      Product product = ModalRoute.of(context).settings.arguments as Product;
+      if (product != null) {
+        _formData['id'] = product.id;
+        _formData['title'] = product.title;
+        _formData['description'] = product.description;
+        _formData['price'] = product.price;
+        _formData['image-url'] = product.imageUrl;
+        _imageUrlController.text = product.imageUrl;
+      } else {
+        _formData['price'] = '';
+      }
+    }
+  }
+
   bool _imageUrlIsValid(String url) {
     bool startWithHttp = url.toLowerCase().startsWith('http://');
     bool startWithHttps = url.toLowerCase().startsWith('https://');
@@ -59,14 +80,21 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     if (_form.currentState.validate()) {
       // chama o onSave de cada método
       _form.currentState.save();
-      Product newProduct = Product(
+      Product product = Product(
+        id: _formData['id'] == null
+            ? Random().nextDouble().toString()
+            : _formData['id'],
         title: _formData['title'],
         description: _formData['description'],
         price: _formData['price'],
         imageUrl: _formData['image-url'],
-        id: Random().nextDouble().toString(),
       );
-      Provider.of<Products>(context, listen: false).addProduct(newProduct);
+      Products productsProvider = Provider.of<Products>(context, listen: false);
+      if (_formData['id'] == null) {
+        productsProvider.addProduct(product);
+      } else {
+        productsProvider.updateProduct(product);
+      }
       Navigator.of(context).pop();
     }
   }
@@ -92,6 +120,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           child: ListView(
             children: [
               TextFormField(
+                initialValue: _formData['title'],
                 decoration: InputDecoration(
                   labelText: 'Título',
                 ),
@@ -122,6 +151,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 },
               ),
               TextFormField(
+                initialValue: _formData['price'].toString(),
                 decoration: InputDecoration(
                   labelText: 'Preço',
                   // errorBorder: InputBorder(
@@ -147,6 +177,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 },
               ),
               TextFormField(
+                initialValue: _formData['description'],
                 decoration: InputDecoration(
                   labelText: 'Descrição',
                 ),
@@ -164,6 +195,10 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   // caso contrário, ele não é exibido
                   Expanded(
                     child: TextFormField(
+                      // o trecho abaixo conflita com o controller
+                      // assim o o valor do campo tem que ser inicializado
+                      // com o controller
+                      // initialValue: _formData['image-url'],
                       decoration: InputDecoration(
                         labelText: 'URL da Imagem',
                       ),

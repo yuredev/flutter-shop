@@ -37,4 +37,19 @@ class Products with ChangeNotifier{
     // notificar todos os observers interessados neste evento 
     notifyListeners();
   }
+
+  void removeProduct(String id) {
+    _items.removeWhere((p) => p.id == id);
+    notifyListeners();
+  }
+
+  void updateProduct(Product product) {
+    if (product != null && product.id != null) {
+      final index = _items.indexWhere((p) => product.id == p.id);
+      if (index > -1) {
+        _items[index] = product;
+        notifyListeners();
+      }
+    }
+  }
 }
