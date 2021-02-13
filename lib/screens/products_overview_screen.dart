@@ -52,6 +52,10 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
               ),
             ],
           ),
+          // O consumer é uma forma de consumir o provider
+          // uma vez que este componente esteja em um 
+          // ponto da arvore de componentes que seja 
+          // alimentado por um ChangeNotifierProvider
           Consumer<Cart>(
             child: IconButton(
               icon: Icon(Icons.shopping_cart),
@@ -59,6 +63,8 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
                 Navigator.of(context).pushNamed('/cart');
               },
             ),
+            // o Badge serve para colocar o ícone de notificação
+            // em cima do widget
             builder: (ctx, cart, child) => Badge(
               value: '${cart.itemCount}',
               child: child,

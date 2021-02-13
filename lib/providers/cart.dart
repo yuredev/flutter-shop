@@ -20,6 +20,9 @@ class CartItem {
 }
 
 class Cart with ChangeNotifier {
+  // o hashmap de itens terá como chave o id do item
+  // do carrinho o segundo valor vai ser uma classe 
+  // cartItem que terá os atributos do produto e a quantidade
   Map<String, CartItem> _items = {};
 
   Map<String, CartItem> get items {
@@ -39,16 +42,20 @@ class Cart with ChangeNotifier {
   }
 
   void addItem(Product product) {
+    // caso o produto exista no carrinho será
+    // preciso alteralo
+    // porem apenas mudando a quantidade
     if (_items.containsKey(product.id)) {
-      _items.update(product.id, (existingItem) {
-        return CartItem(
+      _items.update(
+        product.id,
+        (existingItem) => CartItem(
           productId: product.id,
           id: existingItem.id,
           title: existingItem.title,
           quantity: existingItem.quantity + 1,
           price: existingItem.price,
-        );
-      });
+        ),
+      );
     } else {
       // adicionar se não existe
       _items.putIfAbsent(
@@ -68,19 +75,20 @@ class Cart with ChangeNotifier {
   void removeSingleItem(String productId) {
     if (_items.containsKey(productId)) {
       if (_items[productId].quantity == 1) {
-        _items.remove(productId);
+        removeItem(productId);
       } else {
-        _items.update(productId, (existingItem) {
-          return CartItem(
+        _items.update(
+          productId,
+          (existingItem) => CartItem(
             productId: productId,
             id: existingItem.id,
             title: existingItem.title,
             quantity: existingItem.quantity - 1,
             price: existingItem.price,
-          );
-        });
+          ),
+        );
+        notifyListeners();
       }
-      notifyListeners();
     }
   }
 

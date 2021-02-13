@@ -14,9 +14,9 @@ class CartScreen extends StatelessWidget {
       body: Column(
         children: [
           Card(
-            margin: EdgeInsets.all(25),
+            margin: const EdgeInsets.all(25),
             child: Padding(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -28,6 +28,7 @@ class CartScreen extends StatelessWidget {
                   ),
                   SizedBox(width: 10),
                   Consumer<Cart>(
+                    // o Chip cria um widget de pílula
                     builder: (ctx, cart, child) => Chip(
                       label: Text(
                         'R\$ ${cart.totalAmount.toStringAsFixed(2)}',
@@ -43,19 +44,22 @@ class CartScreen extends StatelessWidget {
                   ),
                   // ocupa resto do espaço
                   Spacer(),
-                  Consumer<Cart>(builder: (ctx, cart, child) {
-                    List<CartItem> cartItemsList = cart.items.values.toList();
-                    return FlatButton(
-                      child: Text('COMPRAR'),
-                      textColor: Theme.of(context).primaryColor,
-                      onPressed: () {
-                        Orders ordersProvider =
-                            Provider.of<Orders>(context, listen: false);
-                        ordersProvider.addOrder(cartItemsList);
-                        cart.clear();
-                      },
-                    );
-                  })
+                  Consumer<Cart>(
+                    builder: (ctx, cart, child) {
+                      List<CartItem> cartItemsList = cart.items.values.toList();
+                      return FlatButton(
+                        child: Text('COMPRAR'),
+                        textColor: Theme.of(context).primaryColor,
+                        onPressed: () {
+                          Orders ordersProvider =
+                              Provider.of<Orders>(context, listen: false);
+                          ordersProvider.addOrder(cartItemsList);
+                          ordersProvider.thereAreNewOrders = true;
+                          cart.clear();
+                        },
+                      );
+                    },
+                  )
                 ],
               ),
             ),

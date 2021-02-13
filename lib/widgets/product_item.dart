@@ -33,7 +33,7 @@ class ProductItem extends StatelessWidget {
               icon: Icon(Icons.delete),
               color: Theme.of(context).errorColor,
               onPressed: () async {
-                bool productMustBeDeleted = await showDialog(
+                bool productShouldBeDeleted = await showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
                     title: Text('Excluir Produto'),
@@ -50,7 +50,7 @@ class ProductItem extends StatelessWidget {
                     ],
                   ),
                 ) as bool;
-                if (productMustBeDeleted) {
+                if (productShouldBeDeleted) {
                   Provider.of<Products>(context, listen: false)
                       .removeProduct(product.id);
                 }
