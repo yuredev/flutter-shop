@@ -22,6 +22,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   @override
   void initState() {
     super.initState();
+    // este addListener faz com que a função updateImage sejaChamado
+    // a cada vez que o foco do imageUrlFocusNode seja chamado
     _imageUrlFocusNode.addListener(_updateImage);
   }
 

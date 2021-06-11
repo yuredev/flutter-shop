@@ -21,23 +21,28 @@ class Orders with ChangeNotifier {
   List<Order> _items = [];
 
   List<Order> get items {
-    return [ ..._items ];
+    return [..._items];
   }
 
   int get itemsCount {
     return _items.length;
   }
 
+  set thereAreNewOrders(bool thereAreNewOrders) {}
+
   void addOrder(List<CartItem> products) {
-    final total = products.fold(0, (acc, cur) { 
+    final total = products.fold(0, (acc, cur) {
       return acc + cur.price * cur.quantity;
-    }); 
-    _items.insert(0, Order(
-      id: Random().nextDouble().toString(),
-      total: total,
-      date: DateTime.now(),
-      products: products,
-    ));
+    });
+    _items.insert(
+      0,
+      Order(
+        id: Random().nextDouble().toString(),
+        total: total,
+        date: DateTime.now(),
+        products: products,
+      ),
+    );
     notifyListeners();
   }
 }

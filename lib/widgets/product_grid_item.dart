@@ -73,7 +73,7 @@ class ProductGridItem extends StatelessWidget {
             icon: Icon(Icons.shopping_cart),
             color: Theme.of(context).accentColor,
             onPressed: () {
-              // Scaffold.of subirá a hierarquia de widgets
+              // ScaffoldMessenger.of subirá a hierarquia de widgets
               // até achar o Scaffold
               // quando achar é possível usar métodos desse Scaffold
               // como por exemplo abrir o Drawer se tiver
@@ -81,14 +81,14 @@ class ProductGridItem extends StatelessWidget {
               // Scaffold.of(context).openDrawer();
 
               // abrindo Snack bar
-              // Scaffold.of(context).showSnackBar(SnackBar(
+              // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
 
               // esconder SnackBar atual para não criar muitas
               // SnackBars aparecendo uma após a outra se o usuário
               // pressionar muitas vezes
-              Scaffold.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-              Scaffold.of(context).showSnackBar(SnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(
                   'Produto adicionado ao carrinho!',
                   // textAlign: TextAlign.center,

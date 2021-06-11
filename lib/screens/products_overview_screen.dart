@@ -53,8 +53,8 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
             ],
           ),
           // O consumer é uma forma de consumir o provider
-          // uma vez que este componente esteja em um 
-          // ponto da arvore de componentes que seja 
+          // uma vez que este componente esteja em um
+          // ponto da arvore de componentes que seja
           // alimentado por um ChangeNotifierProvider
           Consumer<Cart>(
             child: IconButton(
