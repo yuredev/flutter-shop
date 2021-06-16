@@ -18,6 +18,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   final _imageUrlController = TextEditingController();
   final _form = GlobalKey<FormState>();
   final _formData = Map<String, Object>();
+  var _isLoading = false;
 
   @override
   void initState() {
@@ -34,7 +35,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_formData.isEmpty) {
-      Product product = ModalRoute.of(context).settings.arguments as Product;
+      final product = ModalRoute.of(context)!.settings.arguments as Product?;
       if (product != null) {
         _formData['id'] = product.id;
         _formData['title'] = product.title;
@@ -77,26 +78,32 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _imageUrlFocusNode.dispose();
   }
 
-  void _saveForm() {
+  void _saveForm() async {
     // se todos os validators do form estiverem ok
-    if (_form.currentState.validate()) {
+    if (_form.currentState!.validate()) {
       // chama o onSave de cada método
-      _form.currentState.save();
+      _form.currentState!.save();
       Product product = Product(
         id: _formData['id'] == null
             ? Random().nextDouble().toString()
-            : _formData['id'],
-        title: _formData['title'],
-        description: _formData['description'],
-        price: _formData['price'],
-        imageUrl: _formData['image-url'],
+            : _formData['id'] as String,
+        title: _formData['title'] as String,
+        description: _formData['description'] as String,
+        price: _formData['price'] as double,
+        imageUrl: _formData['image-url'] as String,
       );
       Products productsProvider = Provider.of<Products>(context, listen: false);
+
+      setState(() => _isLoading = true);
+
       if (_formData['id'] == null) {
-        productsProvider.addProduct(product);
+        await productsProvider.addProduct(product);
       } else {
         productsProvider.updateProduct(product);
       }
+
+      setState(() => _isLoading = false);
+
       Navigator.of(context).pop();
     }
   }
@@ -115,139 +122,144 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           )
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Form(
-          key: _form,
-          child: ListView(
-            children: [
-              TextFormField(
-                initialValue: _formData['title'],
-                decoration: InputDecoration(
-                  labelText: 'Título',
-                ),
-                // trocar o botão de done pelo de next no teclado
-                // para não submeter o formulário inteiro
-                textInputAction: TextInputAction.next,
-                // quando o next for pressionado, colocar o foco no próximo input
-                onFieldSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(_priceFocusNode);
-                },
-                onSaved: (value) => _formData['title'] = value,
-                // qualquer coisa que o validator retorne que
-                // seja diferente de null
-                // será interpretada como erro na validação
-                // fazendo com que o currentState.validate()
-                // retorne falso
-
-                // os retornos dos validators são justamente o
-                // texto da mensagem de erro que aparecerá no campo
-                validator: (title) {
-                  // trim(): tira espaços em branco
-                  if (title.trim().isEmpty) {
-                    return 'O campo de título não pode estar vazio';
-                  } else if (title.trim().length < 3) {
-                    return 'O Título deve conter no mínimo 3 caracteres';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                initialValue: _formData['price'].toString(),
-                decoration: InputDecoration(
-                  labelText: 'Preço',
-                  // errorBorder: InputBorder(
-                  //   borderSide: BorderSide.
-                  // )
-                ),
-                focusNode: _priceFocusNode,
-                keyboardType: TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(_descriptionFocusNode);
-                },
-                onSaved: (value) => _formData['price'] = double.parse(value),
-                validator: (price) {
-                  if (price.trim().isEmpty) {
-                    return 'O campo de preço não pode estar vazio';
-                  } else if (double.tryParse(price.trim()) <= 0) {
-                    return 'O produto não pode ser gratuito';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                initialValue: _formData['description'],
-                decoration: InputDecoration(
-                  labelText: 'Descrição',
-                ),
-                maxLines: 3,
-                keyboardType: TextInputType.multiline,
-                focusNode: _descriptionFocusNode,
-                onSaved: (value) => _formData['description'] = value,
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  // o TextFormField precisa estar em um widget
-                  // com o tamanho definido, desta forma
-                  // é preciso usar esse Expanded
-                  // caso contrário, ele não é exibido
-                  Expanded(
-                    child: TextFormField(
-                      // o trecho abaixo conflita com o controller
-                      // assim o o valor do campo tem que ser inicializado
-                      // com o controller
-                      // initialValue: _formData['image-url'],
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Form(
+                key: _form,
+                child: ListView(
+                  children: [
+                    TextFormField(
+                      initialValue: _formData['title'] as String?,
                       decoration: InputDecoration(
-                        labelText: 'URL da Imagem',
+                        labelText: 'Título',
                       ),
-                      keyboardType: TextInputType.url,
-                      textInputAction: TextInputAction.done,
-                      focusNode: _imageUrlFocusNode,
-                      controller: _imageUrlController,
-                      onFieldSubmitted: (_) => _saveForm(),
-                      onSaved: (value) => _formData['image-url'] = value,
-                      validator: (url) {
-                        bool isNotEmpty = url.trim().isNotEmpty;
-                        bool isValid = _imageUrlIsValid(url);
+                      // trocar o botão de done pelo de next no teclado
+                      // para não submeter o formulário inteiro
+                      textInputAction: TextInputAction.next,
+                      // quando o next for pressionado, colocar o foco no próximo input
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus(_priceFocusNode);
+                      },
+                      onSaved: (value) => _formData['title'] = value as Object,
+                      // qualquer coisa que o validator retorne que
+                      // seja diferente de null
+                      // será interpretada como erro na validação
+                      // fazendo com que o currentState.validate()
+                      // retorne falso
 
-                        if (isNotEmpty && isValid) {
-                          return null;
+                      // os retornos dos validators são justamente o
+                      // texto da mensagem de erro que aparecerá no campo
+                      validator: (title) {
+                        // trim(): tira espaços em branco
+                        if (title!.trim().isEmpty) {
+                          return 'O campo de título não pode estar vazio';
+                        } else if (title.trim().length < 3) {
+                          return 'O Título deve conter no mínimo 3 caracteres';
                         }
-                        return 'Informe uma URL valida';
+                        return null;
                       },
                     ),
-                  ),
-                  Container(
-                    height: 100,
-                    width: 100,
-                    margin: EdgeInsets.only(
-                      top: 8,
-                      left: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey,
-                        width: 1,
+                    TextFormField(
+                      initialValue: _formData['price'].toString(),
+                      decoration: InputDecoration(
+                        labelText: 'Preço',
+                        // errorBorder: InputBorder(
+                        //   borderSide: BorderSide.
+                        // )
                       ),
+                      focusNode: _priceFocusNode,
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context)
+                            .requestFocus(_descriptionFocusNode);
+                      },
+                      onSaved: (value) =>
+                          _formData['price'] = double.parse(value!),
+                      validator: (price) {
+                        if (price!.trim().isEmpty) {
+                          return 'O campo de preço não pode estar vazio';
+                        } else if (double.tryParse(price.trim())! <= 0) {
+                          return 'O produto não pode ser gratuito';
+                        }
+                        return null;
+                      },
                     ),
-                    alignment: Alignment.center,
-                    child: _imageUrlController.text.isEmpty
-                        ? Text('Informe a URL')
-                        : FittedBox(
-                            child: Image.network(_imageUrlController.text),
-                            fit: BoxFit.cover,
+                    TextFormField(
+                      initialValue: _formData['description'] as String?,
+                      decoration: InputDecoration(
+                        labelText: 'Descrição',
+                      ),
+                      maxLines: 3,
+                      keyboardType: TextInputType.multiline,
+                      focusNode: _descriptionFocusNode,
+                      onSaved: (value) => _formData['description'] = value as Object,
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        // o TextFormField precisa estar em um widget
+                        // com o tamanho definido, desta forma
+                        // é preciso usar esse Expanded
+                        // caso contrário, ele não é exibido
+                        Expanded(
+                          child: TextFormField(
+                            // o trecho abaixo conflita com o controller
+                            // assim o o valor do campo tem que ser inicializado
+                            // com o controller
+                            // initialValue: _formData['image-url'],
+                            decoration: InputDecoration(
+                              labelText: 'URL da Imagem',
+                            ),
+                            keyboardType: TextInputType.url,
+                            textInputAction: TextInputAction.done,
+                            focusNode: _imageUrlFocusNode,
+                            controller: _imageUrlController,
+                            onFieldSubmitted: (_) => _saveForm(),
+                            onSaved: (value) => _formData['image-url'] = value as Object,
+                            validator: (url) {
+                              bool isNotEmpty = url!.trim().isNotEmpty;
+                              bool isValid = _imageUrlIsValid(url);
+
+                              if (isNotEmpty && isValid) {
+                                return null;
+                              }
+                              return 'Informe uma URL valida';
+                            },
                           ),
-                  ),
-                ],
+                        ),
+                        Container(
+                          height: 100,
+                          width: 100,
+                          margin: EdgeInsets.only(
+                            top: 8,
+                            left: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.grey,
+                              width: 1,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: _imageUrlController.text.isEmpty
+                              ? Text('Informe a URL')
+                              : FittedBox(
+                                  child:
+                                      Image.network(_imageUrlController.text),
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }

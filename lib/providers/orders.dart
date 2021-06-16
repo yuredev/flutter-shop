@@ -10,10 +10,10 @@ class Order {
   final DateTime date;
 
   Order({
-    this.id,
-    this.total,
-    this.products,
-    this.date,
+    required this.id,
+    required this.total,
+    required this.products,
+    required this.date,
   });
 }
 
@@ -31,7 +31,7 @@ class Orders with ChangeNotifier {
   set thereAreNewOrders(bool thereAreNewOrders) {}
 
   void addOrder(List<CartItem> products) {
-    final total = products.fold(0, (acc, cur) {
+    final total = products.fold<double>(0, (acc, cur) {
       return acc + cur.price * cur.quantity;
     });
     _items.insert(

@@ -67,7 +67,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
             // em cima do widget
             builder: (ctx, cart, child) => Badge(
               value: '${cart.itemCount}',
-              child: child,
+              child: child!,
             ),
           ),
         ],

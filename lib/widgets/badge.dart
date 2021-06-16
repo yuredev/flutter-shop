@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 class Badge extends StatelessWidget {
   final Widget child;
   final String value;
-  final Color color;
+  final Color? color;
 
   Badge({
-    @required this.child,
-    @required this.value,
+    required this.child,
+    required this.value,
     this.color,
   });
 

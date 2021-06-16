@@ -35,7 +35,7 @@ class CartScreen extends StatelessWidget {
                         style: TextStyle(
                           color: Theme.of(context)
                               .primaryTextTheme
-                              .headline6
+                              .headline6!
                               .color,
                         ),
                       ),
@@ -47,9 +47,13 @@ class CartScreen extends StatelessWidget {
                   Consumer<Cart>(
                     builder: (ctx, cart, child) {
                       List<CartItem> cartItemsList = cart.items.values.toList();
-                      return FlatButton(
+                      return TextButton(
                         child: Text('COMPRAR'),
-                        textColor: Theme.of(context).primaryColor,
+                        style: TextButton.styleFrom(
+                          textStyle: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
                         onPressed: () {
                           Orders ordersProvider =
                               Provider.of<Orders>(context, listen: false);

@@ -11,11 +11,11 @@ class CartItem {
   final String productId;
 
   CartItem({
-    @required this.id,
-    @required this.productId,
-    @required this.title,
-    @required this.quantity,
-    @required this.price,
+    required this.id,
+    required this.productId,
+    required this.title,
+    required this.quantity,
+    required this.price,
   });
 }
 
@@ -74,7 +74,7 @@ class Cart with ChangeNotifier {
 
   void removeSingleItem(String productId) {
     if (_items.containsKey(productId)) {
-      if (_items[productId].quantity == 1) {
+      if (_items[productId]!.quantity == 1) {
         removeItem(productId);
       } else {
         _items.update(
