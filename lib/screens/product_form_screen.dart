@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -78,7 +77,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _imageUrlFocusNode.dispose();
   }
 
-  void _saveForm() async {
+  Future<void> _saveForm() async {
     // se todos os validators do form estiverem ok
     if (_form.currentState!.validate()) {
       // chama o onSave de cada método
@@ -97,14 +96,32 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       setState(() => _isLoading = true);
 
       if (_formData['id'] == null) {
-        await productsProvider.addProduct(product);
+        try {
+          await productsProvider.addProduct(product);
+          Navigator.of(context).pop();
+        } catch (error) {
+          await showDialog(
+            context: context,
+            builder: (ctx) {
+              return AlertDialog(
+                title: Text('Ocorreu um erro'),
+                content:
+                    Text('Não foi possível cadastrar o produto no servidor'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('OK'),
+                  )
+                ],
+              );
+            },
+          );
+        }
       } else {
         productsProvider.updateProduct(product);
       }
 
       setState(() => _isLoading = false);
-
-      Navigator.of(context).pop();
     }
   }
 
@@ -197,7 +214,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                       maxLines: 3,
                       keyboardType: TextInputType.multiline,
                       focusNode: _descriptionFocusNode,
-                      onSaved: (value) => _formData['description'] = value as Object,
+                      onSaved: (value) =>
+                          _formData['description'] = value as Object,
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -220,7 +238,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                             focusNode: _imageUrlFocusNode,
                             controller: _imageUrlController,
                             onFieldSubmitted: (_) => _saveForm(),
-                            onSaved: (value) => _formData['image-url'] = value as Object,
+                            onSaved: (value) =>
+                                _formData['image-url'] = value as Object,
                             validator: (url) {
                               bool isNotEmpty = url!.trim().isNotEmpty;
                               bool isValid = _imageUrlIsValid(url);

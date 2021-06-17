@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop/providers/cart.dart';
+import 'package:shop/providers/products.dart';
 import 'package:shop/widgets/app_drawer.dart';
 import 'package:shop/widgets/badge.dart';
 import 'package:shop/widgets/product_grid.dart';
@@ -17,11 +18,30 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _showFavoriteOnly = false;
+  bool _isLoadingProducts = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    setState(() => _isLoadingProducts = true);
+
+    refreshProducts();
+  }
+
+  Future<void> refreshProducts() async {
+    setState(() => _isLoadingProducts = true);
+
+    await Provider.of<Products>(
+      context,
+      listen: false,
+    ).loadProducts();
+
+    setState(() => _isLoadingProducts = false);
+  }
 
   @override
   Widget build(BuildContext context) {
-    // final ProductsProvider products = Provider.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Minha Loja'),
@@ -35,7 +55,6 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
                   _showFavoriteOnly = true;
                 });
               } else {
-                // products.showAll();
                 setState(() {
                   _showFavoriteOnly = false;
                 });
@@ -73,7 +92,14 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       drawer: AppDrawer(),
-      body: ProductGrid(_showFavoriteOnly),
+      body: _isLoadingProducts
+          ? Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: refreshProducts,
+              child: ProductGrid(
+                _showFavoriteOnly,
+              ),
+            ),
     );
   }
 }
