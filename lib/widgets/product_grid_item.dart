@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop/errors/http_request_error.dart';
 import 'package:shop/providers/cart.dart';
 import 'package:shop/providers/product.dart';
 
 class ProductGridItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final messengerOfContext = ScaffoldMessenger.of(context);
+
     final Product product = Provider.of<Product>(
       context,
       // o atributo nomeado listen indica se este widget
@@ -60,8 +63,16 @@ class ProductGridItem extends StatelessWidget {
                 product.isFavorite ? Icons.favorite : Icons.favorite_border,
               ),
               color: Theme.of(context).accentColor,
-              onPressed: () {
-                product.toggleFavorite();
+              onPressed: () async {
+                try {
+                  await product.toggleFavorite();
+                } catch (e) {
+                  // não é possível usar o ScaffoldMessenger.of(context) dentro de funcoes async
+                  // assim precisamos definir esse messengerOfContext fora da funcao assincrona
+                  messengerOfContext.showSnackBar(
+                    SnackBar(content: Text('Não foi possível realizar a ação')),
+                  );
+                }
               },
             ),
           ),

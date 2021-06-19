@@ -47,21 +47,7 @@ class CartScreen extends StatelessWidget {
                   Consumer<Cart>(
                     builder: (ctx, cart, child) {
                       List<CartItem> cartItemsList = cart.items.values.toList();
-                      return TextButton(
-                        child: Text('COMPRAR'),
-                        style: TextButton.styleFrom(
-                          textStyle: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                        onPressed: () {
-                          Orders ordersProvider =
-                              Provider.of<Orders>(context, listen: false);
-                          ordersProvider.addOrder(cartItemsList);
-                          ordersProvider.thereAreNewOrders = true;
-                          cart.clear();
-                        },
-                      );
+                      return OrderButton(cart);
                     },
                   )
                 ],
@@ -82,6 +68,47 @@ class CartScreen extends StatelessWidget {
           })
         ],
       ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  OrderButton(this.cart);
+
+  final Cart cart;
+
+  @override
+  _OrderButtonState createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isLoading = false;
+  
+  @override
+  Widget build(BuildContext context) {
+    final _messengerOfContext = ScaffoldMessenger.of(context);
+
+    return  TextButton(
+      child: _isLoading ? CircularProgressIndicator() : Text('COMPRAR'),
+      style: TextButton.styleFrom(
+        textStyle: TextStyle(
+          color: Theme.of(context).primaryColor,
+        ),
+      ),
+      onPressed: widget.cart.items.values.isEmpty ? null : () async {
+        Orders ordersProvider = Provider.of<Orders>(context, listen: false);
+        setState(() => _isLoading = true);
+        try {
+          await ordersProvider.addOrder(widget.cart.items.values.toList());
+          widget.cart.clear();
+        } catch (e) {
+          _messengerOfContext.showSnackBar(
+            SnackBar(content: Text('Não foi possível cadastrar o pedido')),
+          );
+        }
+        setState(() => _isLoading = false);
+        ordersProvider.thereAreNewOrders = true;
+      },
     );
   }
 }

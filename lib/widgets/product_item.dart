@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop/errors/delete_request_error.dart';
+import 'package:shop/errors/http_request_error.dart';
 import 'package:shop/providers/product.dart';
 import 'package:shop/providers/products.dart';
 import 'package:shop/utils.dart';
@@ -61,7 +61,7 @@ class ProductItem extends StatelessWidget {
                       context: scaffoldContext,
                       contentText: 'Produto deletado com sucesso',
                     );
-                  } on DeleteRequestException {
+                  } on RequestError {
                     showSnackbar(
                       context: scaffoldContext,
                       contentText: 'Não foi possível deletar o produto',

@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
+import 'package:http/http.dart' as http;
+import 'package:shop/errors/http_request_error.dart';
 import 'package:shop/providers/cart.dart';
 
 class Order {
@@ -18,6 +21,9 @@ class Order {
 }
 
 class Orders with ChangeNotifier {
+  final _apiBaseUrl =
+      'https://yuredev-flutter-shop-default-rtdb.firebaseio.com/orders';
+
   List<Order> _items = [];
 
   List<Order> get items {
@@ -30,17 +36,39 @@ class Orders with ChangeNotifier {
 
   set thereAreNewOrders(bool thereAreNewOrders) {}
 
-  void addOrder(List<CartItem> products) {
-    final total = products.fold<double>(0, (acc, cur) {
+  Future<void> addOrder(List<CartItem> cartItems) async {
+    final total = cartItems.fold<double>(0, (acc, cur) {
       return acc + cur.price * cur.quantity;
     });
+
+    final res = await http.post(
+      Uri.parse('$_apiBaseUrl.json'),
+      body: json.encode({
+        'total': total,
+        'date': DateTime.now().toIso8601String(),
+        'products': cartItems.map((item) => {
+          'title': item.title,
+          'quantity': item.quantity,
+          'price': item.price,
+          'productId': item.productId,
+        }).toList(),
+      }),
+    );
+
+    if (res.statusCode >= 400) {
+      throw RequestError(
+        message: 'Erro ao cadastrar o pedido',
+        statusCode: res.statusCode,
+      );
+    }
+
     _items.insert(
       0,
       Order(
-        id: Random().nextDouble().toString(),
+        id: json.decode(res.body)['name'],
         total: total,
         date: DateTime.now(),
-        products: products,
+        products: cartItems,
       ),
     );
     notifyListeners();

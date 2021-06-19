@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-import 'package:shop/errors/delete_request_error.dart';
+import 'package:shop/errors/http_request_error.dart';
 import 'package:shop/providers/product.dart';
 
 class Products with ChangeNotifier {
@@ -84,7 +84,7 @@ class Products with ChangeNotifier {
     if (res.statusCode >= 400) {
       _items.add(product);
       notifyListeners();
-      throw DeleteRequestException(
+      throw RequestError(
         message: 'Erro durante a requisição',
         statusCode: res.statusCode,
       );
