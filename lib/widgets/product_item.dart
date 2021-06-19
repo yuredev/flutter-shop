@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop/errors/delete_request_error.dart';
 import 'package:shop/providers/product.dart';
 import 'package:shop/providers/products.dart';
+import 'package:shop/utils.dart';
 
 class ProductItem extends StatelessWidget {
   final Product product;
+  final BuildContext scaffoldContext;
 
-  ProductItem(this.product);
+  ProductItem(this.product, { required this.scaffoldContext });
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +54,19 @@ class ProductItem extends StatelessWidget {
                   ),
                 ) as bool;
                 if (productShouldBeDeleted) {
-                  Provider.of<Products>(context, listen: false)
-                      .removeProduct(product.id);
+                  try {
+                    await Provider.of<Products>(context, listen: false)
+                        .removeProduct(product.id);
+                    showSnackbar(
+                      context: scaffoldContext,
+                      contentText: 'Produto deletado com sucesso',
+                    );
+                  } on DeleteRequestException {
+                    showSnackbar(
+                      context: scaffoldContext,
+                      contentText: 'Não foi possível deletar o produto',
+                    );
+                  }
                 }
               },
             )

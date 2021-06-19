@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop/providers/product.dart';
 import 'package:shop/providers/products.dart';
+import 'package:shop/utils.dart';
 
 class ProductFormScreen extends StatefulWidget {
   @override
@@ -100,25 +101,22 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           await productsProvider.addProduct(product);
           Navigator.of(context).pop();
         } catch (error) {
-          await showDialog(
+          showSimpleAlertDialog(
+            title: 'Erro na requisição',
+            content: 'Não foi possível cadastrar o produto',
             context: context,
-            builder: (ctx) {
-              return AlertDialog(
-                title: Text('Ocorreu um erro'),
-                content:
-                    Text('Não foi possível cadastrar o produto no servidor'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text('OK'),
-                  )
-                ],
-              );
-            },
           );
         }
       } else {
-        productsProvider.updateProduct(product);
+        try {
+          await productsProvider.updateProduct(product);
+        } catch (e) {
+          showSimpleAlertDialog(
+            title: 'Erro na requisição',
+            content: 'Não foi possível editar o produto',
+            context: context,
+          );
+        }
       }
 
       setState(() => _isLoading = false);

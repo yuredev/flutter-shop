@@ -5,6 +5,7 @@ import 'package:shop/widgets/app_drawer.dart';
 import 'package:shop/widgets/product_item.dart';
 
 class ProductManagerScreen extends StatelessWidget {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   Future<void> _refreshProducts(BuildContext context) async {
     await Provider.of<Products>(context, listen: false).loadProducts();
   }
@@ -14,6 +15,7 @@ class ProductManagerScreen extends StatelessWidget {
     Products productsProvider = Provider.of<Products>(context);
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Gerenciar de Produtos'),
         actions: [
@@ -36,6 +38,7 @@ class ProductManagerScreen extends StatelessWidget {
               children: [
                 ProductItem(
                   productsProvider.items[index],
+                  scaffoldContext: _scaffoldKey.currentContext as BuildContext,
                 ),
                 Divider(),
               ],
